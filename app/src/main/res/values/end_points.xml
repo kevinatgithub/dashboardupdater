@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="api_wip_list">http://dashboardupdater.getsandbox.com/api/wip/[sectionId]</string>
+    <string name="api_mo_chasis">http://dashboardupdater.getsandbox.com/api/mo/chasis/[chasisNumber]</string>
+</resources>

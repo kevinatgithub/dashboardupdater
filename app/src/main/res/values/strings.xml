@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Dashboard Updater</string>
+
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="dashboard_updater">DASHBOARD UPDATER</string>
+    <string name="user_name">User Name</string>
+    <string name="password">Password</string>
+    <string name="login">LOGIN</string>
+    <string name="no_pending">No pending or in progress units at \nthe momment. You time-in one by\n tapping the + on the top right.</string>
+    <string name="notice">Notice</string>
+    <string name="plus">Plus</string>
+    <string name="home">HOME</string>
+</resources>
