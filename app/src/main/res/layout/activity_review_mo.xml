@@ -355,7 +355,7 @@
     </android.support.constraint.ConstraintLayout>
 
     <Button
-        android:id="@+id/btn_secondaryAction"
+        android:id="@+id/btn_view_attachments"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -368,44 +368,9 @@
         android:text="@string/view_attachments"
         android:textColor="@color/colorPrimary"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_primaryAction"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btn_primaryAction"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:background="@color/colorPrimary"
-        android:padding="15dp"
-        android:text="@string/time_in"
-        android:textColor="#fff"
-        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/img_status"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/lbl_chassisNumber"
-        app:layout_constraintHorizontal_bias="0.92"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/badge_yellow" />
 
 </android.support.constraint.ConstraintLayout>

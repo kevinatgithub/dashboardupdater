@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,12 +24,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -44,6 +40,8 @@ public class MOList extends AppCompatActivity {
     private Gson gson;
     private String sectionId = "1";
     private ImageView btn_scan;
+    private ImageView img_refresh;
+    private Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,16 +59,18 @@ public class MOList extends AppCompatActivity {
         requestQueue = Volley.newRequestQueue(this);
         gson = new Gson();
         btn_scan = findViewById(R.id.btn_scan);
+        img_refresh = findViewById(R.id.img_refresh);
+        session = new Session(this);
 
         fetchWipList();
-//        refreshWipList();
+        refreshWipList();
 
         lv_mo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                WipChasisNumber wipChasisNumber = (WipChasisNumber) lv_mo.getItemAtPosition(position);
-                Intent intent = new Intent(getApplicationContext(),MOPreview.class);
-                intent.putExtra("chasisNumber",wipChasisNumber.chassisNumber);
+                WipChassisNumber wipChasisNumber = (WipChassisNumber) lv_mo.getItemAtPosition(position);
+                Intent intent = new Intent(getApplicationContext(),MOPreviewLoading.class);
+                intent.putExtra("chassisNumber",wipChasisNumber.chassisNumber);
                 startActivity(intent);
             }
         });
@@ -83,6 +83,31 @@ public class MOList extends AppCompatActivity {
             }
         });
 
+        img_refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                refreshWipList();
+//                Toast.makeText(getApplicationContext(), "List Refreshed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        img_refresh.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                resetWipList();
+                return false;
+            }
+        });
+
+    }
+
+    private void resetWipList() {
+        final String URL = getResources().getString(R.string.api_reset);
+        JsonObjectRequest request = new JsonObjectRequest(
+                JsonObjectRequest.Method.GET,URL,null,null,null
+        );
+        requestQueue.add(request);
+        refreshWipList();
     }
 
     private void refreshWipList(){
@@ -98,11 +123,11 @@ public class MOList extends AppCompatActivity {
 
     public class ApiResponse{
         public String sectionId;
-        public WipChasisNumber[] wipChasisNumbers;
+        public WipChassisNumber[] wipChassisNumbers;
 
-        public ApiResponse(String sectionId, WipChasisNumber[] wipChasisNumbers) {
+        public ApiResponse(String sectionId, WipChassisNumber[] wipChassisNumbers) {
             this.sectionId = sectionId;
-            this.wipChasisNumbers = wipChasisNumbers;
+            this.wipChassisNumbers = wipChassisNumbers;
         }
     }
 
@@ -119,18 +144,21 @@ public class MOList extends AppCompatActivity {
 //                        Log.d("SERVER RESPONSE",response.toString());
                         if(response != null){
                             ApiResponse ar = gson.fromJson(response.toString(),ApiResponse.class);
-                            ArrayList<WipChasisNumber> wipChasisNumbers = new ArrayList<WipChasisNumber>(Arrays.asList(ar.wipChasisNumbers));
+                            if(ar.wipChassisNumbers != null){
+                                ArrayList<WipChassisNumber> wipChasisNumbers = new ArrayList<WipChassisNumber>(Arrays.asList(ar.wipChassisNumbers));
+                                session.setInSection(wipChasisNumbers);
 
-                            if(wipChasisNumbers.size() > 0){
-                                MoListAdapter moListAdapter = new MoListAdapter(getApplicationContext(),wipChasisNumbers);
-                                lv_mo.setAdapter(moListAdapter);
-                                lv_mo.setVisibility(View.VISIBLE);
-                                img_info.setVisibility(View.GONE);
-                                lbl_info.setVisibility(View.GONE);
-                            }else{
-                                lv_mo.setVisibility(View.GONE);
-                                img_info.setVisibility(View.VISIBLE);
-                                lbl_info.setVisibility(View.VISIBLE);
+                                if(wipChasisNumbers.size() > 0){
+                                    MoListAdapter moListAdapter = new MoListAdapter(getApplicationContext(),wipChasisNumbers);
+                                    lv_mo.setAdapter(moListAdapter);
+                                    lv_mo.setVisibility(View.VISIBLE);
+                                    img_info.setVisibility(View.GONE);
+                                    lbl_info.setVisibility(View.GONE);
+                                }else{
+                                    lv_mo.setVisibility(View.GONE);
+                                    img_info.setVisibility(View.VISIBLE);
+                                    lbl_info.setVisibility(View.VISIBLE);
+                                }
                             }
 
                         }
@@ -145,16 +173,16 @@ public class MOList extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest);
     }
 
-    private class MoListAdapter extends ArrayAdapter<WipChasisNumber>{
+    private class MoListAdapter extends ArrayAdapter<WipChassisNumber>{
 
-        public MoListAdapter(Context context, ArrayList<WipChasisNumber> items){
+        public MoListAdapter(Context context, ArrayList<WipChassisNumber> items){
             super(context, 0, items);
         }
 
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            WipChasisNumber mo = getItem(position);
+            WipChassisNumber mo = getItem(position);
 
             if(convertView == null){
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.mo_list_row, parent, false);
@@ -168,8 +196,10 @@ public class MOList extends AppCompatActivity {
             chasis_no.setText(mo.chassisNumber);
 
             /*NOT FINAL*/
-            if(mo.isPending){
+            if(mo.isPending) {
                 status.setText("Pending");
+            }else if(mo.isMc){
+                status.setText("Material Call");
             }else{
                 status.setText("In Section");
             }
@@ -177,5 +207,9 @@ public class MOList extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        fetchWipList();
+    }
 }

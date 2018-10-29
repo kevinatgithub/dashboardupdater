@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hino.dev.dashboardupdater">
+
     <uses-permission android:name="com.symbol.emdk.permission.EMDK" />
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -11,6 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <uses-library android:name="com.symbol.emdk" />
+
         <activity android:name=".MOList">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,24 +21,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Login">
-
-        </activity>
-        <activity android:name=".Scan" >
-
-        </activity>
-        <activity android:name=".MOPreview" >
-
-        </activity>
-        <activity android:name=".MaterialCall">
-
-        </activity>
-        <activity android:name=".SuccessTimeOut">
-
-        </activity>
-        <activity android:name=".ReturnToSection">
-
-        </activity>
+        <activity android:name=".Login" />
+        <activity android:name=".Scan" />
+        <activity android:name=".MOPreview" />
+        <activity android:name=".MaterialCall" />
+        <activity android:name=".SuccessAction" />
+        <activity android:name=".ReturnToSection" />
+        <activity android:name=".ReviewMO" />
+        <activity android:name=".MOPreviewLoading"></activity>
     </application>
 
 </manifest>

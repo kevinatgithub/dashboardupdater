@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="api_reset">http://dashboardupdater.getsandbox.com/seed</string>
     <string name="api_wip_list">http://dashboardupdater.getsandbox.com/api/wip/[sectionId]</string>
-    <string name="api_mo_chasis">http://dashboardupdater.getsandbox.com/api/mo/chasis/[chasisNumber]</string>
+    <string name="api_mo_chassis">http://dashboardupdater.getsandbox.com/api/mo/chassis/[chassisNumber]</string>
+    <string name="api_time_in">http://dashboardupdater.getsandbox.com/api/wip/timein/nrml</string>
+    <string name="api_material_call">http://dashboardupdater.getsandbox.com/api/wip/mc/[sectionId]/[chassisNumber]/[isPending]/[ramarks]</string>
+    <string name="api_resolve">http://dashboardupdater.getsandbox.com/api/wip/mc/resolve/[sectionId]/[chassisNumber]</string>
+    <string name="api_time_out">http://dashboardupdater.getsandbox.com/api/wip/timeout/[sectionId]/[chassisNumber]</string>
+    <string name="api_back_job">http://dashboardupdater.getsandbox.com/api/wip/timein/bkjb/[sectionId]/[chassisNumber]</string>
+    <string name="api_spec_change">http://dashboardupdater.getsandbox.com/api/wip/timein/bkjb/[sectionId]/[chassisNumber]</string>
 </resources>

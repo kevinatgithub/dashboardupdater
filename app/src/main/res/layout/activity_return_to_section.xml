@@ -30,12 +30,26 @@
             android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:text="HOME"
+            android:text="@string/home"
             android:textColor="#fff"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/img_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/close"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_close_w" />
     </android.support.constraint.ConstraintLayout>
 
     <ImageView
@@ -47,6 +61,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="70dp"
+        android:contentDescription="@string/notice"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -61,7 +76,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:gravity="center_horizontal"
-        android:text="You're about to time-in a unit that\nhas already timed-out. Please\nreview the MO and choose one of\nthe actions below:"
+        android:text="@string/youre_about_to_time_in"
         android:textColor="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
@@ -69,7 +84,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView10" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/btn_review_mo"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -79,7 +94,7 @@
         android:layout_marginTop="8dp"
         android:background="#fff"
         android:padding="10dp"
-        android:text="REVIEW MO"
+        android:text="@string/review_mo"
         android:textColor="@color/colorPrimary"
         android:textSize="10sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,7 +102,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView15" />
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/btn_spec_change"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -97,7 +112,7 @@
         android:layout_marginStart="8dp"
         android:background="@color/colorPrimary"
         android:padding="10dp"
-        android:text="TIME IN AS SPEC CHANGE"
+        android:text="@string/time_in_as_spec_change"
         android:textColor="@android:color/background_light"
         android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -105,7 +120,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button7"
+        android:id="@+id/btn_back_job"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -115,10 +130,10 @@
         android:layout_marginStart="8dp"
         android:background="@color/colorPrimary"
         android:padding="10dp"
-        android:text="TIME IN AS BACK JOB"
+        android:text="@string/time_in_as_back_job"
         android:textColor="@android:color/background_light"
         android:textSize="10sp"
-        app:layout_constraintBottom_toTopOf="@+id/button6"
+        app:layout_constraintBottom_toTopOf="@+id/btn_spec_change"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -131,9 +146,9 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:text="Options:"
+        android:text="@string/options"
         android:textColor="@color/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@+id/button7"
+        app:layout_constraintBottom_toTopOf="@+id/btn_back_job"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>
