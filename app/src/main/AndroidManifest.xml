@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <uses-library android:name="com.symbol.emdk" />
+        <!--<uses-library android:name="com.symbol.emdk" />-->
 
         <activity android:name=".MOList">
             <intent-filter>
