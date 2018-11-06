@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,11 +19,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ReturnToSection extends AppCompatActivity {
 
-    private ImageView img_close;
     private Button review_mo;
     private Button btn_back_job;
     private Button btn_spec_change;
@@ -36,12 +38,9 @@ public class ReturnToSection extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_return_to_section);
-        ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
-            actionBar.hide();
-        }
+        Toolbar toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
 
-        img_close = findViewById(R.id.img_close);
         review_mo = findViewById(R.id.btn_review_mo);
         btn_back_job = findViewById(R.id.btn_back_job);
         btn_spec_change = findViewById(R.id.btn_spec_change);
@@ -50,12 +49,7 @@ public class ReturnToSection extends AppCompatActivity {
         requestQueue = Volley.newRequestQueue(getApplicationContext());
         gson = new Gson();
 
-        img_close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+
         
         review_mo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,25 +75,38 @@ public class ReturnToSection extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return super.onOptionsItemSelected(item);
+    }
+
     private void specChange() {
-        final String url = getResources().getString(R.string.api_spec_change)
-                .replace("[sectionId]",sectionId)
-                .replace("[chassisNumber]",chassisNumber);
+        final String url = getResources().getString(R.string.api_spec_change);
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("sectionId",sectionId);
+            jsonObject.put("chassisNumber",chassisNumber);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                JsonObjectRequest.Method.GET,
+                JsonObjectRequest.Method.POST,
                 url,
-                null,
+                jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Toast.makeText(ReturnToSection.this, "Item flagged as Spec Change", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ReturnToSection.this, "Unit has been successfully flagged as Spec Change.", Toast.LENGTH_LONG).show();
                         finish();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        // TODO: 02/11/2018 Handle Error Code Status
                         error.printStackTrace();
                     }
                 }
@@ -109,24 +116,31 @@ public class ReturnToSection extends AppCompatActivity {
     }
 
     private void backJob() {
-        final String url = getResources().getString(R.string.api_back_job)
-                .replace("[sectionId]",sectionId)
-                .replace("[chassisNumber]",chassisNumber);
+        final String url = getResources().getString(R.string.api_back_job);
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("sectionId",sectionId);
+            jsonObject.put("chassisNumber",chassisNumber);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                JsonObjectRequest.Method.GET,
+                JsonObjectRequest.Method.POST,
                 url,
-                null,
+                jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Toast.makeText(ReturnToSection.this, "Item flagged as back job", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ReturnToSection.this, "Unit has been successfully flagged as back job.", Toast.LENGTH_LONG).show();
                         finish();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        // TODO: 02/11/2018 Handle Error Code Status
                         error.printStackTrace();
                     }
                 }

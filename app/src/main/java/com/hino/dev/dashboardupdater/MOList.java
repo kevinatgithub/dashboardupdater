@@ -2,12 +2,23 @@ package com.hino.dev.dashboardupdater;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -29,6 +40,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MOList extends AppCompatActivity {
 
@@ -39,43 +52,55 @@ public class MOList extends AppCompatActivity {
     private RequestQueue requestQueue;
     private Gson gson;
     private String sectionId = "1";
-    private ImageView btn_scan;
-    private ImageView img_refresh;
     private Session session;
+    private FloatingActionButton fab_scan;
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle toggle;
+    private TextView nav_header_textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_molist);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
+        Toolbar toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        toggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.drawer_open,R.string.drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+//        nav_header_textView = findViewById(R.id.nav_header_textView);
+
+        // TODO: 02/11/2018  change user name of current logged in user
+//        nav_header_textView.setText("Juan Dela Cruz");
 
         lv_mo = findViewById(R.id.lv_mo);
         img_info = findViewById(R.id.img_info);
         lbl_info = findViewById(R.id.lbl_info);
         api_address = getResources().getString(R.string.api_wip_list);
+        fab_scan = findViewById(R.id.fab_scan);
         requestQueue = Volley.newRequestQueue(this);
         gson = new Gson();
-        btn_scan = findViewById(R.id.btn_scan);
-        img_refresh = findViewById(R.id.img_refresh);
         session = new Session(this);
 
-        fetchWipList();
-        refreshWipList();
+        checkConnection(new CallbackInterface() {
+            @Override
+            public void onSuccess() {
+                fetchWipList();
+                refreshWipList();
+            }
+        });
 
         lv_mo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 WipChassisNumber wipChasisNumber = (WipChassisNumber) lv_mo.getItemAtPosition(position);
-                Intent intent = new Intent(getApplicationContext(),MOPreviewLoading.class);
+                Intent intent = new Intent(getApplicationContext(),MOPreview.class);
                 intent.putExtra("chassisNumber",wipChasisNumber.chassisNumber);
                 startActivity(intent);
             }
         });
 
-        btn_scan.setOnClickListener(new View.OnClickListener() {
+        fab_scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(),Scan.class);
@@ -83,39 +108,25 @@ public class MOList extends AppCompatActivity {
             }
         });
 
-        img_refresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                refreshWipList();
-//                Toast.makeText(getApplicationContext(), "List Refreshed", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        img_refresh.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                resetWipList();
-                return false;
-            }
-        });
-
     }
 
-    private void resetWipList() {
-        final String URL = getResources().getString(R.string.api_reset);
-        JsonObjectRequest request = new JsonObjectRequest(
-                JsonObjectRequest.Method.GET,URL,null,null,null
-        );
-        requestQueue.add(request);
-        refreshWipList();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+//        drawerLayout.openDrawer(GravityCompat.START);
+        return super.onOptionsItemSelected(item);
     }
 
     private void refreshWipList(){
         new android.os.Handler().postDelayed(
         new Runnable() {
             public void run() {
-                fetchWipList();
-                refreshWipList();
+                checkConnection(new CallbackInterface() {
+                    @Override
+                    public void onSuccess() {
+                        fetchWipList();
+                        refreshWipList();
+                    }
+                });
             }
         },
         15000);
@@ -131,6 +142,14 @@ public class MOList extends AppCompatActivity {
         }
     }
 
+    public class WipChassisNumbersComparator implements Comparator<WipChassisNumber>{
+
+        @Override
+        public int compare(WipChassisNumber left, WipChassisNumber right) {
+            return left.chassisNumber.compareTo(right.chassisNumber);
+        }
+    }
+
     private void fetchWipList(){
         String address = api_address.replace("[sectionId]",sectionId);
 
@@ -141,7 +160,6 @@ public class MOList extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-//                        Log.d("SERVER RESPONSE",response.toString());
                         if(response != null){
                             ApiResponse ar = gson.fromJson(response.toString(),ApiResponse.class);
                             if(ar.wipChassisNumbers != null){
@@ -149,6 +167,7 @@ public class MOList extends AppCompatActivity {
                                 session.setInSection(wipChasisNumbers);
 
                                 if(wipChasisNumbers.size() > 0){
+                                    Collections.sort(wipChasisNumbers,new WipChassisNumbersComparator());
                                     MoListAdapter moListAdapter = new MoListAdapter(getApplicationContext(),wipChasisNumbers);
                                     lv_mo.setAdapter(moListAdapter);
                                     lv_mo.setVisibility(View.VISIBLE);
@@ -188,18 +207,15 @@ public class MOList extends AppCompatActivity {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.mo_list_row, parent, false);
             }
 
-            TextView chasis_no = convertView.findViewById(R.id.lbl_chasis_no);
+            TextView chassis_no = convertView.findViewById(R.id.lbl_chassis_no);
             TextView status = convertView.findViewById(R.id.lbl_status);
             ImageView img_arrow = convertView.findViewById(R.id.img_arrow);
 
             img_arrow.setImageResource(R.drawable.ic_arrow_right);
-            chasis_no.setText(mo.chassisNumber);
+            chassis_no.setText(mo.chassisNumber);
 
-            /*NOT FINAL*/
             if(mo.isPending) {
                 status.setText("Pending");
-            }else if(mo.isMc){
-                status.setText("Material Call");
             }else{
                 status.setText("In Section");
             }
@@ -211,5 +227,23 @@ public class MOList extends AppCompatActivity {
     protected void onPostResume() {
         super.onPostResume();
         fetchWipList();
+    }
+
+    interface CallbackInterface{
+
+        void onSuccess();
+    }
+
+    private void checkConnection(CallbackInterface callbackInterface){
+        ConnectivityManager conMgr =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
+        if (netInfo == null){
+            new AlertDialog.Builder(this)
+                    .setTitle(getResources().getString(R.string.internet_error_title))
+                    .setMessage(getResources().getString(R.string.internet_error))
+                    .setPositiveButton("OK", null).show();
+        }else{
+            callbackInterface.onSuccess();
+        }
     }
 }

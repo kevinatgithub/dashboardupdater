@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hino.dev.dashboardupdater">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.symbol.emdk.permission.EMDK" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -11,8 +12,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <!--<uses-library android:name="com.symbol.emdk" />-->
+        android:theme="@style/Theme.DashboardUpdater">
+
+        <!-- <uses-library android:name="com.symbol.emdk" /> -->
 
         <activity android:name=".MOList">
             <intent-filter>
@@ -28,7 +30,9 @@
         <activity android:name=".SuccessAction" />
         <activity android:name=".ReturnToSection" />
         <activity android:name=".ReviewMO" />
-        <activity android:name=".MOPreviewLoading"></activity>
+        <activity android:name=".MOPreviewLoading" />
+        <activity android:name=".ViewAttachments"></activity>
+        <activity android:name=".ShowServerResponse"></activity>
     </application>
 
 </manifest>

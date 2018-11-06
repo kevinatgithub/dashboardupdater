@@ -13,6 +13,7 @@ public class WipChassisNumber {
     public String chassisNumber = "";
     public String timeIn = "";
     public Integer workTime = 0;
+    public Integer remainingTime = 0;
     public Boolean isPending = false;
     public Boolean isMc = false;
     public String moNumber = "";
@@ -21,12 +22,14 @@ public class WipChassisNumber {
     public String customer = "";
     public String chassisModel = "";
     public Integer moQuantity = 0;
-    public String[] fileAttachments;
+    public Boolean finishedNormalEntry = false;
+    public Attachment[] fileAttachments;
 
-    public WipChassisNumber(String chassisNumber, String timeIn, Integer workTime, Boolean isPending, Boolean isMc, String moNumber, String moDate, String dealer, String customer, String chassisModel, Integer moQuantity, String[] fileAttachments) {
+    public WipChassisNumber(String chassisNumber, String timeIn, Integer workTime, Integer remainingTime, Boolean isPending, Boolean isMc, String moNumber, String moDate, String dealer, String customer, String chassisModel, Integer moQuantity, Boolean finishedNormalEntry, Attachment[] fileAttachments) {
         this.chassisNumber = chassisNumber;
         this.timeIn = timeIn;
         this.workTime = workTime;
+        this.remainingTime = remainingTime;
         this.isPending = isPending;
         this.isMc = isMc;
         this.moNumber = moNumber;
@@ -35,11 +38,12 @@ public class WipChassisNumber {
         this.customer = customer;
         this.chassisModel = chassisModel;
         this.moQuantity = moQuantity;
+        this.finishedNormalEntry = finishedNormalEntry;
         this.fileAttachments = fileAttachments;
     }
 
     private Date dateValueOfTimeIn(){
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
         Date date = null;
         if(this.timeIn != null){
             try {
@@ -62,5 +66,29 @@ public class WipChassisNumber {
             return seconds/ 60;
         }
         return 0;
+    }
+
+    public Date makeMoDateStringAsDate(){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        Date date = null;
+        if(this.moDate != null){
+            try {
+                date =format.parse(this.moDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return date;
+    }
+
+    public static class Attachment{
+
+        public String name;
+        public String url;
+
+        public Attachment(String name, String url) {
+            this.name = name;
+            this.url = url;
+        }
     }
 }

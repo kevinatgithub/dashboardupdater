@@ -28,6 +28,19 @@ public class Session {
         return value;
     }
 
+    public void setUser(User user){
+        String jsonValue = gson.toJson(user);
+        prefs.edit().putString("user",jsonValue);
+    }
+
+    public User getUser(){
+        String jsonValue = prefs.getString("user","");
+        if(jsonValue.equals("")){
+            return null;
+        }
+        return gson.fromJson(jsonValue,User.class);
+    }
+
     public void setInSection(ArrayList inList){
         String jsonValue = gson.toJson(inList);
         prefs.edit().putString("inList",jsonValue).commit();

@@ -7,7 +7,7 @@
     <string name="user_name">User Name</string>
     <string name="password">Password</string>
     <string name="login">LOGIN</string>
-    <string name="no_pending">No pending or in progress units at \nthe momment. You time-in one by\n tapping the + on the top right.</string>
+    <string name="no_pending">No pending or in progress units at \nthe momment. You time-in one by\n tapping the + below.</string>
     <string name="notice">Notice</string>
     <string name="plus">Plus</string>
     <string name="home">HOME</string>
@@ -34,5 +34,9 @@
     <string name="time_out">TIME OUT</string>
     <string name="unit_has_been">Unit has been successfully\ntimed-out.</string>
     <string name="please_wait">PLEASE WAIT</string>
-    <string name="please_wait_loading">PLEASE WAIT LADING...</string>
+    <string name="please_wait_loading">PLEASE WAIT LOADING...</string>
+    <string name="drawer_open">Drawer Open</string>
+    <string name="drawer_close">Drawer Closed</string>
+    <string name="internet_error_title">Connection Error</string>
+    <string name="internet_error">Can\'t connect to server.\nPlease check wifi/internet connection.</string>
 </resources>

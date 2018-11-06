@@ -16,6 +16,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:textColor="@color/colorPrimary"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -28,12 +29,13 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:contentDescription="@string/close"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_close" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/lbl_chassisNumber_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -43,6 +45,7 @@
         android:text="@string/chassis_number"
         android:textColor="@color/colorPrimary"
         android:textSize="8sp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,9 +62,10 @@
         android:layout_marginTop="24dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5">
+        app:layout_constraintTop_toBottomOf="@+id/lbl_chassisNumber_hint">
 
         <TextView
             android:id="@+id/textView7"
@@ -102,10 +106,11 @@
         android:layout_marginTop="56dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5">
+        app:layout_constraintTop_toBottomOf="@+id/lbl_chassisNumber_hint">
 
         <TextView
             android:id="@+id/lbl_moNumber"
@@ -145,10 +150,11 @@
         android:layout_marginTop="88dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5">
+        app:layout_constraintTop_toBottomOf="@+id/lbl_chassisNumber_hint">
 
         <TextView
             android:id="@+id/lbl_moDate"
@@ -189,10 +195,11 @@
         android:layout_marginTop="120dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5">
+        app:layout_constraintTop_toBottomOf="@+id/lbl_chassisNumber_hint">
 
         <TextView
             android:id="@+id/lbl_dealer"
@@ -233,10 +240,11 @@
         android:layout_marginTop="152dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5">
+        app:layout_constraintTop_toBottomOf="@+id/lbl_chassisNumber_hint">
 
         <TextView
             android:id="@+id/lbl_customer"
@@ -277,10 +285,11 @@
         android:layout_marginTop="184dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5">
+        app:layout_constraintTop_toBottomOf="@+id/lbl_chassisNumber_hint">
 
         <TextView
             android:id="@+id/lbl_chassisModel"
@@ -321,10 +330,11 @@
         android:layout_marginTop="216dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5">
+        app:layout_constraintTop_toBottomOf="@+id/lbl_chassisNumber_hint">
 
         <TextView
             android:id="@+id/lbl_quantity"
@@ -368,9 +378,28 @@
         android:text="@string/view_attachments"
         android:textColor="@color/colorPrimary"
         android:textSize="12sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

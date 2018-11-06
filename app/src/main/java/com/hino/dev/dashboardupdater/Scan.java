@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -25,7 +27,6 @@ public class Scan extends AppCompatActivity {
 //public class Scan extends AppCompatActivity implements EMDKManager.EMDKListener, Scanner.DataListener {
 
 
-    private ImageView btn_back;
     private ImageView btn_scan;
     private EditText txt_chassisNumber;
     private TextView lbl_scanner_status;
@@ -37,12 +38,9 @@ public class Scan extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
-        ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
-            actionBar.hide();
-        }
+        Toolbar toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
 
-        btn_back = findViewById(R.id.btn_back);
         btn_scan = findViewById(R.id.btn_scan);
         txt_chassisNumber = findViewById(R.id.txt_chassisNumber);
         lbl_scanner_status = findViewById(R.id.lbl_scanner_status);
@@ -52,18 +50,28 @@ public class Scan extends AppCompatActivity {
 //            lbl_scanner_status.setText("SCANNER FAILED TO INITIALIZE!");
 //        }
 
-        btn_back.setOnClickListener(new View.OnClickListener() {
+        btn_scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                releaseScanner();
-                finish();
+                if(!txt_chassisNumber.getText().equals("")){
+                    Intent intent = new Intent(getApplicationContext(),MOPreview.class);
+                    intent.putExtra("chassisNumber",txt_chassisNumber.getText().toString());
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
 
 
     }
 
-//    @Override
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return super.onOptionsItemSelected(item);
+    }
+
+    //    @Override
 //    public void onOpened(EMDKManager emdkManager) {
 //        this.emdkManager = emdkManager;
 //

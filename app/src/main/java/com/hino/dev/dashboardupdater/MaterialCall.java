@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,11 +22,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MaterialCall extends AppCompatActivity {
 
-    private ImageView img_cancel;
     private TextView lbl_chassisNumber;
     private Switch switch_isPending;
     private EditText txt_remarks;
@@ -38,13 +40,11 @@ public class MaterialCall extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_material_call);
-        ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
-            actionBar.hide();
-        }
 
-        img_cancel = findViewById(R.id.img_cancel);
-        lbl_chassisNumber = findViewById(R.id.lbl_chassisModel);
+        Toolbar toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
+
+        lbl_chassisNumber = findViewById(R.id.lbl_chassisNumber);
         switch_isPending = findViewById(R.id.switch_isPending);
         txt_remarks = findViewById(R.id.txt_remarks);
         btn_submit = findViewById(R.id.btn_submit);
@@ -52,12 +52,9 @@ public class MaterialCall extends AppCompatActivity {
         callerIntent = getIntent();
         chassisNumber = callerIntent.getStringExtra("chassisNumber");
 
-        img_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        if(chassisNumber != null){
+            lbl_chassisNumber.setText(chassisNumber);
+        }
 
         btn_submit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,28 +66,37 @@ public class MaterialCall extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        finish();
+        return super.onOptionsItemSelected(item);
+    }
+
     private void submit() {
-        final String url = getResources().getString(R.string.api_material_call).replace("[sectionId]",sectionId)
-                .replace("[chassisNumber]",chassisNumber)
-                .replace("[isPending]",switch_isPending.isChecked() ? "true" : "false")
-                .replace("[remarks]",txt_remarks.getText());
+        final String url = getResources().getString(R.string.api_material_call);
+
+        JSONObject params = new JSONObject();
+        try {
+            params.put("sectionId",sectionId);
+            params.put("chassisNumber",chassisNumber);
+            params.put("isPending",switch_isPending.isChecked());
+            params.put("remarks",txt_remarks.getText());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                JsonObjectRequest.Method.GET,
+                JsonObjectRequest.Method.POST,
                 url,
-                null,
+                params,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         String promptMessage = "";
                         if(switch_isPending.isChecked()){
-                            Intent intent = new Intent(getApplicationContext(),SuccessAction.class);
-                            intent.putExtra("status","PENDING");
-                            startActivity(intent);;
+                            Toast.makeText(MaterialCall.this, "Unit has been successfully flagged as pending.", Toast.LENGTH_LONG).show();
                         }else{
-                            Intent intent = new Intent(getApplicationContext(),SuccessAction.class);
-                            intent.putExtra("status","MATERIAL CALL");
-                            startActivity(intent);;
+                            Toast.makeText(MaterialCall.this, "Unit has been successfully flagged as material call.", Toast.LENGTH_LONG).show();
                         }
                         finish();
                     }

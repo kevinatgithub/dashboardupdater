@@ -1,12 +1,14 @@
 package com.hino.dev.dashboardupdater;
 
 import android.content.Intent;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
@@ -24,7 +26,16 @@ import java.util.Map;
 
 public class ReviewMO extends AppCompatActivity {
 
+    private ProgressBar pb_spinner;
+    private ConstraintLayout cl_layout1;
+    private ConstraintLayout cl_layout2;
+    private ConstraintLayout cl_layout3;
+    private ConstraintLayout cl_layout4;
+    private ConstraintLayout cl_layout5;
+    private ConstraintLayout cl_layout6;
+    private ConstraintLayout cl_layout7;
     private TextView lbl_chassisNumber;
+    private TextView lbl_chassisNumber_hint;
     private TextView lbl_taktTime;
     private TextView lbl_moNumber;
     private TextView lbl_moDate;
@@ -38,7 +49,9 @@ public class ReviewMO extends AppCompatActivity {
     private Gson gson;
     private Intent callerIntent;
 
+    private WipChassisNumber wipChassisNumber;
     private String chassisNumber;
+    private String sectionId = "1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +62,16 @@ public class ReviewMO extends AppCompatActivity {
             actionBar.hide();
         }
 
+        pb_spinner = findViewById(R.id.progressBar);
+        cl_layout1 = findViewById(R.id.constraintLayout1);
+        cl_layout2 = findViewById(R.id.constraintLayout2);
+        cl_layout3 = findViewById(R.id.constraintLayout3);
+        cl_layout4 = findViewById(R.id.constraintLayout4);
+        cl_layout5 = findViewById(R.id.constraintLayout5);
+        cl_layout6 = findViewById(R.id.constraintLayout6);
+        cl_layout7 = findViewById(R.id.constraintLayout7);
         lbl_chassisNumber = findViewById(R.id.lbl_chassisNumber);
+        lbl_chassisNumber_hint = findViewById(R.id.lbl_chassisNumber_hint);
         lbl_taktTime = findViewById(R.id.lbl_taktTime);
         lbl_moNumber = findViewById(R.id.lbl_moNumber);
         lbl_moDate = findViewById(R.id.lbl_moDate);
@@ -81,11 +103,16 @@ public class ReviewMO extends AppCompatActivity {
     }
 
     private void viewAttachments() {
+        Intent intent = new Intent(getApplicationContext(),ViewAttachments.class);
+        intent.putExtra("wipChassisNumber",gson.toJson(wipChassisNumber));
+        startActivity(intent);
     }
 
     private void fetchDetails(){
         final String chassisNumber = callerIntent.getStringExtra("chassisNumber");
-        final String url = getResources().getString(R.string.api_mo_chassis).replace("[chassisNumber]",chassisNumber);
+        final String url = getResources().getString(R.string.api_mo_chassis)
+                .replace("[sectionId]",sectionId)
+                .replace("[chassisNumber]",chassisNumber);
 
         JsonObjectRequest request = new JsonObjectRequest(
                 JsonObjectRequest.Method.GET,
@@ -95,7 +122,7 @@ public class ReviewMO extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         if(response != null){
-                            WipChassisNumber wipChassisNumber = gson.fromJson(response.toString(),WipChassisNumber.class);
+                            wipChassisNumber = gson.fromJson(response.toString(),WipChassisNumber.class);
                             lbl_chassisNumber.setText(wipChassisNumber.chassisNumber);
                             lbl_moNumber.setText(wipChassisNumber.moNumber);
                             lbl_moDate.setText(wipChassisNumber.moDate);
@@ -103,6 +130,20 @@ public class ReviewMO extends AppCompatActivity {
                             lbl_customer.setText(wipChassisNumber.customer);
                             lbl_chassisModel.setText(wipChassisNumber.chassisModel);
                             lbl_quantity.setText(wipChassisNumber.moQuantity + "");
+
+                            lbl_chassisNumber.setVisibility(View.VISIBLE);
+                            lbl_chassisNumber_hint.setVisibility(View.VISIBLE);
+                            img_cancel.setVisibility(View.VISIBLE);
+                            cl_layout1.setVisibility(View.VISIBLE);
+                            cl_layout2.setVisibility(View.VISIBLE);
+                            cl_layout3.setVisibility(View.VISIBLE);
+                            cl_layout4.setVisibility(View.VISIBLE);
+                            cl_layout5.setVisibility(View.VISIBLE);
+                            cl_layout6.setVisibility(View.VISIBLE);
+                            cl_layout7.setVisibility(View.VISIBLE);
+                            btn_viewAttachments.setVisibility(View.VISIBLE);
+                            pb_spinner.setVisibility(View.GONE);
+
                         }
                     }
                 },
