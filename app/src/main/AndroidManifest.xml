@@ -16,23 +16,24 @@
 
         <!-- <uses-library android:name="com.symbol.emdk" /> -->
 
-        <activity android:name=".MOList">
+        <activity android:name=".Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Login" />
+        <activity android:name=".Sections">
+
+        </activity>
+        <activity android:name=".MOList" />
         <activity android:name=".Scan" />
         <activity android:name=".MOPreview" />
         <activity android:name=".MaterialCall" />
         <activity android:name=".SuccessAction" />
-        <activity android:name=".ReturnToSection" />
+        <activity android:name=".ReturnToSection" android:launchMode="singleTop" />
         <activity android:name=".ReviewMO" />
-        <activity android:name=".MOPreviewLoading" />
-        <activity android:name=".ViewAttachments"></activity>
-        <activity android:name=".ShowServerResponse"></activity>
+        <activity android:name=".ViewAttachments" />
+        <activity android:name=".ShowServerResponse" android:launchMode="singleTop" />
     </application>
 
 </manifest>

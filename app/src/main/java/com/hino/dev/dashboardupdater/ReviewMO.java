@@ -51,7 +51,8 @@ public class ReviewMO extends AppCompatActivity {
 
     private WipChassisNumber wipChassisNumber;
     private String chassisNumber;
-    private String sectionId = "1";
+    private Session session;
+    private User.Section section;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,8 @@ public class ReviewMO extends AppCompatActivity {
         requestQueue = Volley.newRequestQueue(getApplicationContext());
         callerIntent = getIntent();
         gson = new Gson();
+        session = new Session(this);
+        section = session.getSection();
 
         img_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,7 +114,7 @@ public class ReviewMO extends AppCompatActivity {
     private void fetchDetails(){
         final String chassisNumber = callerIntent.getStringExtra("chassisNumber");
         final String url = getResources().getString(R.string.api_mo_chassis)
-                .replace("[sectionId]",sectionId)
+                .replace("[sectionId]",section.id)
                 .replace("[chassisNumber]",chassisNumber);
 
         JsonObjectRequest request = new JsonObjectRequest(

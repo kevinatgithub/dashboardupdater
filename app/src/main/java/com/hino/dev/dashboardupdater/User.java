@@ -7,7 +7,7 @@ public class User {
     public String userName;
     public Section[] sections;
 
-    public class Section{
+    public static class Section{
         public String id;
         public String name;
 

@@ -38,10 +38,15 @@ public class Login extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         session = new Session(this);
-
-        if(checkUserSession() != null){
-            Intent intent = new Intent(this,MOList.class);
-            startActivity(intent);
+        User user = session.getUser();
+        if(user != null){
+            if(session.getSection() != null){
+                Intent intent = new Intent(this,MOList.class);
+                startActivity(intent);
+            }else{
+                Intent intent = new Intent(this,Sections.class);
+                startActivity(intent);
+            }
             finish();
         }
 
@@ -71,8 +76,13 @@ public class Login extends AppCompatActivity {
                                     if(response != null){
                                         User user = gson.fromJson(response.toString(),User.class);
                                         session.setUser(user);
-                                        Intent intent = new Intent(getApplicationContext(),MOList.class);
-                                        startActivity(intent);
+                                        if(user.sections.length == 1){
+                                            Intent intent = new Intent(getApplicationContext(),MOList.class);
+                                            startActivity(intent);
+                                        }else{
+                                            Intent intent = new Intent(getApplicationContext(),Sections.class);
+                                            startActivity(intent);
+                                        }
                                         finish();
                                     }
                                 }
@@ -80,14 +90,17 @@ public class Login extends AppCompatActivity {
                             new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
-                                    NetworkResponse response = error.networkResponse;
-                                    if(response != null){
-                                        if(response.statusCode == 400){
-                                            // TODO: 02/11/2018 implement 400 handler
-                                        }else{
-                                            // TODO: 02/11/2018 implement FATAL error
-                                        }
+                                    NetworkResponse networkResponse = error.networkResponse;
+
+                                    Intent intent = new Intent(getApplicationContext(),ShowServerResponse.class);
+                                    if(networkResponse.statusCode == 400){
+                                        String json = new String(networkResponse.data);
+                                        ApiResponse response = gson.fromJson(json,ApiResponse.class);
+                                        intent.putExtra("message",response.Message);
+                                    }else{
+                                        intent.putExtra("message",getResources().getString(R.string.api_error));
                                     }
+                                    startActivity(intent);
                                 }
                             }
                     );
@@ -96,10 +109,5 @@ public class Login extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private User checkUserSession() {
-        User user = session.getUser();
-        return user;
     }
 }

@@ -8,16 +8,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,11 +49,12 @@ public class MOList extends AppCompatActivity {
     private String api_address;
     private RequestQueue requestQueue;
     private Gson gson;
-    private String sectionId = "1";
+    private User.Section section;
     private Session session;
     private FloatingActionButton fab_scan;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle toggle;
+    private NavigationView navView;
     private TextView nav_header_textView;
 
     @Override
@@ -72,7 +71,7 @@ public class MOList extends AppCompatActivity {
 
         // TODO: 02/11/2018  change user name of current logged in user
 //        nav_header_textView.setText("Juan Dela Cruz");
-
+        navView = findViewById(R.id.nav_view);
         lv_mo = findViewById(R.id.lv_mo);
         img_info = findViewById(R.id.img_info);
         lbl_info = findViewById(R.id.lbl_info);
@@ -81,6 +80,7 @@ public class MOList extends AppCompatActivity {
         requestQueue = Volley.newRequestQueue(this);
         gson = new Gson();
         session = new Session(this);
+        section = session.getSection();
 
         checkConnection(new CallbackInterface() {
             @Override
@@ -108,11 +108,32 @@ public class MOList extends AppCompatActivity {
             }
         });
 
+        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
+                switch (id){
+                    case R.id.sections:
+                        Intent sections = new Intent(getApplicationContext(), Sections.class);
+                        startActivity(sections);
+                        finish();
+                        break;
+                    case R.id.logout:
+                        session.removeUser();
+                        session.removeSection();
+                        Intent login = new Intent(getApplicationContext(), Login.class);
+                        startActivity(login);
+                        finish();
+                        break;
+                }
+                return false;
+            }
+        });
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        drawerLayout.openDrawer(GravityCompat.START);
         return super.onOptionsItemSelected(item);
     }
 
@@ -132,11 +153,11 @@ public class MOList extends AppCompatActivity {
         15000);
     }
 
-    public class ApiResponse{
+    private class ApiResponseWipChassisNumbers {
         public String sectionId;
         public WipChassisNumber[] wipChassisNumbers;
 
-        public ApiResponse(String sectionId, WipChassisNumber[] wipChassisNumbers) {
+        public ApiResponseWipChassisNumbers(String sectionId, WipChassisNumber[] wipChassisNumbers) {
             this.sectionId = sectionId;
             this.wipChassisNumbers = wipChassisNumbers;
         }
@@ -151,7 +172,7 @@ public class MOList extends AppCompatActivity {
     }
 
     private void fetchWipList(){
-        String address = api_address.replace("[sectionId]",sectionId);
+        String address = api_address.replace("[sectionId]",section.id);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET,
@@ -161,10 +182,9 @@ public class MOList extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         if(response != null){
-                            ApiResponse ar = gson.fromJson(response.toString(),ApiResponse.class);
+                            ApiResponseWipChassisNumbers ar = gson.fromJson(response.toString(),ApiResponseWipChassisNumbers.class);
                             if(ar.wipChassisNumbers != null){
                                 ArrayList<WipChassisNumber> wipChasisNumbers = new ArrayList<WipChassisNumber>(Arrays.asList(ar.wipChassisNumbers));
-                                session.setInSection(wipChasisNumbers);
 
                                 if(wipChasisNumbers.size() > 0){
                                     Collections.sort(wipChasisNumbers,new WipChassisNumbersComparator());

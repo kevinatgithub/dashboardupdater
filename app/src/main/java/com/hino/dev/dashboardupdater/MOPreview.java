@@ -24,6 +24,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
@@ -61,7 +62,8 @@ public class MOPreview extends AppCompatActivity {
     private RequestQueue requestQueue;
     private Gson gson;
 
-    private String sectionId = "1";
+    private Session session;
+    private User.Section section;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,8 @@ public class MOPreview extends AppCompatActivity {
         requestQueue = Volley.newRequestQueue(getApplicationContext());
         gson = new Gson();
         callerIntent = getIntent();
+        session = new Session(this);
+        section = session.getSection();
 
         progressBar = findViewById(R.id.progressBar2);
         cl_content = findViewById(R.id.cl_content);
@@ -108,9 +112,20 @@ public class MOPreview extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onPostResume() {
+        fetchDetails(new Callback() {
+            @Override
+            public void after() {
+                adjustActionHandlers();
+            }
+        });
+        super.onPostResume();
+    }
+
     private void fetchDetails(final Callback callback){
         final String url = getResources().getString(R.string.api_mo_chassis)
-                .replace("[sectionId]",sectionId)
+                .replace("[sectionId]",section.id)
                 .replace("[chassisNumber]",chassisNumber);
 
         JsonObjectRequest request = new JsonObjectRequest(
@@ -138,19 +153,7 @@ public class MOPreview extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        NetworkResponse networkResponse = error.networkResponse;
-
-                        Intent intent = new Intent(getApplicationContext(),ShowServerResponse.class);
-                        if(networkResponse.statusCode == 400){
-                            String json = new String(networkResponse.data);
-                            ApiResponse response = gson.fromJson(json,ApiResponse.class);
-                            intent.putExtra("message",response.Message);
-                        }else{
-                            intent.putExtra("message","ERROR 500\nPlease contact administrator.");
-                        }
-                        startActivity(intent);
-                        finish();
-                        error.printStackTrace();
+                        apiErrorHandler(error);
                     }
                 }
         );
@@ -158,18 +161,26 @@ public class MOPreview extends AppCompatActivity {
         requestQueue.add(request);
     }
 
-    interface Callback{
-        void after();
+    private void apiErrorHandler(VolleyError error){
+        NetworkResponse networkResponse = error.networkResponse;
+
+        Intent intent = new Intent(getApplicationContext(),ShowServerResponse.class);
+        if(networkResponse == null){
+            intent.putExtra("message","NETWORK ERROR " +getResources().getString(R.string.api_error));
+        }else if(networkResponse.statusCode == 400){
+            String json = new String(networkResponse.data);
+            ApiResponse response = gson.fromJson(json,ApiResponse.class);
+            intent.putExtra("message",response.Message);
+        }else{
+            intent.putExtra("message","ERROR      "+networkResponse.statusCode+" " +getResources().getString(R.string.api_error));
+        }
+        startActivity(intent);
+        finish();
+        error.printStackTrace();
     }
 
-    private class ApiResponse{
-        public String Code;
-        public String Message;
-
-        public ApiResponse(String Code, String Message) {
-            this.Code= Code;
-            this.Message= Message;
-        }
+    interface Callback{
+        void after();
     }
 
     private void adjustActionHandlers(){
@@ -208,8 +219,7 @@ public class MOPreview extends AppCompatActivity {
             img_status.setImageDrawable(getResources().getDrawable(R.drawable.badge_yellow));
 
             btn_primaryAction.setText("RESOLVE");
-            btn_secondaryAction.setText("");
-            btn_secondaryAction.setVisibility(View.GONE);
+            btn_secondaryAction.setText("MATERIAL CALL");
 
             btn_primaryAction.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -217,7 +227,11 @@ public class MOPreview extends AppCompatActivity {
                     resolve();
                 }
             });
-            btn_secondaryAction.setOnClickListener(null);
+
+            btn_secondaryAction.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {materialCall();}
+            });
         }else if(wipChassisNumber.timeIn != null && wipChassisNumber.finishedNormalEntry == false){
             img_status.setVisibility(View.VISIBLE);
             img_status.setImageDrawable(getResources().getDrawable(R.drawable.badge_green));
@@ -253,27 +267,33 @@ public class MOPreview extends AppCompatActivity {
     }
 
     private void resolve() {
-        final String url = getResources().getString(R.string.api_resolve)
-                .replace("[sectionId]",sectionId)
-                .replace("[chassisNumber]",wipChassisNumber.chassisNumber);
+        final String url = getResources().getString(R.string.api_resolve);
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("sectionId",section.id);
+            jsonObject.put("chassisNumber",wipChassisNumber.chassisNumber);
+            jsonObject.put("isResolved",true);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                JsonObjectRequest.Method.GET,
+                Request.Method.PUT,
                 url,
-                null,
+                jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Intent intent = new Intent(getApplicationContext(),SuccessAction.class);
-                        intent.putExtra("status","RESOLVE");
-                        startActivity(intent);;
+                        Toast.makeText(MOPreview.this, "Unit has been successfully resolved.", Toast.LENGTH_LONG).show();
                         finish();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
+                        apiErrorHandler(error);
                     }
                 }
         );
@@ -283,7 +303,7 @@ public class MOPreview extends AppCompatActivity {
 
     private void materialCall() {
         Intent intent = new Intent(getApplicationContext(),MaterialCall.class);
-        intent.putExtra("chassisNumber",wipChassisNumber.chassisNumber);
+        intent.putExtra("wipChassisNumber",gson.toJson(wipChassisNumber));
         startActivity(intent);
 //        finish();
     }
@@ -299,7 +319,7 @@ public class MOPreview extends AppCompatActivity {
 
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("sectionId",sectionId);
+            jsonObject.put("sectionId",section.id);
             jsonObject.put("chassisNumber",wipChassisNumber.chassisNumber);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -319,8 +339,7 @@ public class MOPreview extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: 02/11/2018 Handle Error Code Status 
-                        error.printStackTrace();
+                        apiErrorHandler(error);
                     }
                 }
         );
@@ -335,7 +354,7 @@ public class MOPreview extends AppCompatActivity {
         final String url = getResources().getString(R.string.api_time_in);
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("sectionId",sectionId);
+            jsonObject.put("sectionId",section.id);
             jsonObject.put("chassisNumber",wipChassisNumber.chassisNumber);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -355,8 +374,7 @@ public class MOPreview extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: 02/11/2018 Handle appropriete errors
-                        error.printStackTrace();
+                        apiErrorHandler(error);
                     }
                 }
         );

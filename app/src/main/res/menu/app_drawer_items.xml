@@ -4,6 +4,9 @@
         <item android:id="@+id/settings"
             android:icon="@drawable/ic_settings"
             android:title="SETTINGS"></item>
+        <item android:id="@+id/sections"
+            android:icon="@drawable/ic_sections"
+            android:title="SECTIONS"></item>
         <item android:id="@+id/logout"
             android:icon="@drawable/ic_password"
             android:title="LOGOUT"></item>

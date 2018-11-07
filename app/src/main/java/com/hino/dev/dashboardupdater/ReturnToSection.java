@@ -1,6 +1,7 @@
 package com.hino.dev.dashboardupdater;
 
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -29,7 +31,8 @@ public class ReturnToSection extends AppCompatActivity {
     private Button btn_spec_change;
     private Intent callerIntent;
     private String chassisNumber;
-    final private String sectionId = "1";
+    private Session session;
+    private User.Section section;
 
     private RequestQueue requestQueue;
     private Gson gson;
@@ -48,8 +51,8 @@ public class ReturnToSection extends AppCompatActivity {
         chassisNumber = callerIntent.getStringExtra("chassisNumber");
         requestQueue = Volley.newRequestQueue(getApplicationContext());
         gson = new Gson();
-
-
+        session = new Session(this);
+        section = session.getSection();
         
         review_mo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,7 +89,7 @@ public class ReturnToSection extends AppCompatActivity {
 
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("sectionId",sectionId);
+            jsonObject.put("sectionId",section.id);
             jsonObject.put("chassisNumber",chassisNumber);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -106,8 +109,7 @@ public class ReturnToSection extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: 02/11/2018 Handle Error Code Status
-                        error.printStackTrace();
+                        apiErrorHandler(error);
                     }
                 }
         );
@@ -115,12 +117,30 @@ public class ReturnToSection extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest);
     }
 
+    private void apiErrorHandler(VolleyError error){
+        NetworkResponse networkResponse = error.networkResponse;
+
+        Intent intent = new Intent(getApplicationContext(),ShowServerResponse.class);
+        if(networkResponse == null){
+            intent.putExtra("message","NETWORK ERROR " +getResources().getString(R.string.api_error));
+        }else if(networkResponse.statusCode == 400){
+            String json = new String(networkResponse.data);
+            ApiResponse response = gson.fromJson(json,ApiResponse.class);
+            intent.putExtra("message",response.Message);
+        }else{
+            intent.putExtra("message","ERROR      "+networkResponse.statusCode+" " +getResources().getString(R.string.api_error));
+        }
+        startActivity(intent);
+        finish();
+        error.printStackTrace();
+    }
+
     private void backJob() {
         final String url = getResources().getString(R.string.api_back_job);
 
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("sectionId",sectionId);
+            jsonObject.put("sectionId",section.id);
             jsonObject.put("chassisNumber",chassisNumber);
         } catch (JSONException e) {
             e.printStackTrace();

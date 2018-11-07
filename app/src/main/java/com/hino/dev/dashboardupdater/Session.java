@@ -19,18 +19,9 @@ public class Session {
         gson = new Gson();
     }
 
-    public void set(String key, String value){
-        prefs.edit().putString(key,value).commit();
-    }
-
-    public String get(String key){
-        String value = prefs.getString(key,"");
-        return value;
-    }
-
     public void setUser(User user){
         String jsonValue = gson.toJson(user);
-        prefs.edit().putString("user",jsonValue);
+        prefs.edit().putString("user",jsonValue).commit();
     }
 
     public User getUser(){
@@ -41,14 +32,24 @@ public class Session {
         return gson.fromJson(jsonValue,User.class);
     }
 
-    public void setInSection(ArrayList inList){
-        String jsonValue = gson.toJson(inList);
-        prefs.edit().putString("inList",jsonValue).commit();
+    public void removeUser(){
+        prefs.edit().remove("user").commit();
     }
 
-    public ArrayList<WipChassisNumber> getInSection(){
-        String jsonvalue = prefs.getString("inList","");
-        Type type = new TypeToken<ArrayList<WipChassisNumber>>() {}.getType();
-        return gson.fromJson(jsonvalue, type);
+    public void setSection(User.Section section){
+        String jsonValue = gson.toJson(section);
+        prefs.edit().putString("section",jsonValue).commit();
+    }
+
+    public User.Section getSection(){
+        String jsonValue = prefs.getString("section","");
+        if(jsonValue.equals("")){
+            return null;
+        }
+        return gson.fromJson(jsonValue,User.Section.class);
+    }
+
+    public void removeSection(){
+        prefs.edit().remove("section").commit();
     }
 }
