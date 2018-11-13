@@ -1,45 +1,33 @@
 package com.hino.dev.dashboardupdater;
 
-import android.content.DialogInterface;
+import android.app.Dialog;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telecom.Call;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-public class MOPreview extends AppCompatActivity {
+public class MOPreview extends DashboardUpdater {
 
+    private ConstraintLayout cl_mo_prevew;
     private ProgressBar progressBar;
     private ConstraintLayout cl_content;
     private TextView lbl_chassisNumber;
@@ -55,31 +43,17 @@ public class MOPreview extends AppCompatActivity {
     private Button btn_primaryAction;
     private ImageView img_status;
 
-    private Intent callerIntent;
     private String chassisNumber;
     private WipChassisNumber wipChassisNumber;
 
-    private RequestQueue requestQueue;
-    private Gson gson;
 
-    private Session session;
-    private User.Section section;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mopreview);
-        ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
-            actionBar.hide();
-        }
 
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
-        gson = new Gson();
-        callerIntent = getIntent();
-        session = new Session(this);
-        section = session.getSection();
-
+        cl_mo_prevew = findViewById(R.id.cl_mo_preview);
         progressBar = findViewById(R.id.progressBar2);
         cl_content = findViewById(R.id.cl_content);
         lbl_chassisNumber = findViewById(R.id.lbl_chassisNumber);
@@ -106,7 +80,7 @@ public class MOPreview extends AppCompatActivity {
 
         fetchDetails(new Callback() {
             @Override
-            public void after() {
+            public void execute() {
                 adjustActionHandlers();
             }
         });
@@ -116,7 +90,7 @@ public class MOPreview extends AppCompatActivity {
     protected void onPostResume() {
         fetchDetails(new Callback() {
             @Override
-            public void after() {
+            public void execute() {
                 adjustActionHandlers();
             }
         });
@@ -145,7 +119,7 @@ public class MOPreview extends AppCompatActivity {
                             }else{
                                 progressBar.setVisibility(View.GONE);
                                 cl_content.setVisibility(View.VISIBLE);
-                                callback.after();
+                                callback.execute();
                             }
                         }
                     }
@@ -154,6 +128,7 @@ public class MOPreview extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         apiErrorHandler(error);
+                        finish();
                     }
                 }
         );
@@ -161,32 +136,24 @@ public class MOPreview extends AppCompatActivity {
         requestQueue.add(request);
     }
 
-    private void apiErrorHandler(VolleyError error){
-        NetworkResponse networkResponse = error.networkResponse;
-
-        Intent intent = new Intent(getApplicationContext(),ShowServerResponse.class);
-        if(networkResponse == null){
-            intent.putExtra("message","NETWORK ERROR " +getResources().getString(R.string.api_error));
-        }else if(networkResponse.statusCode == 400){
-            String json = new String(networkResponse.data);
-            ApiResponse response = gson.fromJson(json,ApiResponse.class);
-            intent.putExtra("message",response.Message);
-        }else{
-            intent.putExtra("message","ERROR      "+networkResponse.statusCode+" " +getResources().getString(R.string.api_error));
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        Snackbar snackbar = Snackbar.make(cl_mo_prevew,"",Snackbar.LENGTH_LONG);
+        switch(resultCode){
+            case MATERIAL_CALL_SUCCESS:
+                snackbar.setText(getResources().getString(R.string.success_material_call)).show();
+                break;
+            case PENDING_SUCCESS:
+                snackbar.setText(getResources().getString(R.string.success_pending)).show();
+                break;
         }
-        startActivity(intent);
-        finish();
-        error.printStackTrace();
-    }
-
-    interface Callback{
-        void after();
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void adjustActionHandlers(){
 
         lbl_chassisNumber.setText(wipChassisNumber.chassisNumber);
-        lbl_taktTime.setText(wipChassisNumber.workTime + " MINS");
+        lbl_taktTime.setText((wipChassisNumber.workTime != null ? wipChassisNumber.workTime : "0") + " MINS");
         lbl_moNumber.setText(wipChassisNumber.moNumber);
         Date moDate = wipChassisNumber.makeMoDateStringAsDate();
         if(moDate != null){
@@ -198,28 +165,13 @@ public class MOPreview extends AppCompatActivity {
         lbl_chassisModel.setText(wipChassisNumber.chassisModel);
         lbl_quantity.setText(wipChassisNumber.moQuantity + "");
 
-        if(wipChassisNumber.timeIn == null) {
-            img_status.setVisibility(View.GONE);
-            btn_primaryAction.setText("TIME IN");
-            btn_secondaryAction.setText("VIEW ATTACHMENTS");
-
-            btn_primaryAction.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    timeIn();
-                }
-            });
-            btn_secondaryAction.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {viewAttachments();
-                }
-            });
-        }else if(wipChassisNumber.isMc) {
+        if(wipChassisNumber.isMc) {
             img_status.setVisibility(View.VISIBLE);
             img_status.setImageDrawable(getResources().getDrawable(R.drawable.badge_yellow));
 
             btn_primaryAction.setText("RESOLVE");
             btn_secondaryAction.setText("MATERIAL CALL");
+            btn_primaryAction.setVisibility(View.VISIBLE);
 
             btn_primaryAction.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -235,13 +187,8 @@ public class MOPreview extends AppCompatActivity {
         }else if(wipChassisNumber.timeIn != null && wipChassisNumber.finishedNormalEntry == false){
             img_status.setVisibility(View.VISIBLE);
             img_status.setImageDrawable(getResources().getDrawable(R.drawable.badge_green));
-            btn_primaryAction.setText("TIME OUT");
+            btn_primaryAction.setVisibility(View.GONE);
             btn_secondaryAction.setText("MATERIAL CALL");
-
-            btn_primaryAction.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {timeout();}
-            });
             btn_secondaryAction.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {materialCall();}
@@ -267,6 +214,8 @@ public class MOPreview extends AppCompatActivity {
     }
 
     private void resolve() {
+        final Dialog dialog = nonDismissibleDialog("Resolving..");
+        dialog.show();
         final String url = getResources().getString(R.string.api_resolve);
 
         JSONObject jsonObject = new JSONObject();
@@ -286,7 +235,8 @@ public class MOPreview extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Toast.makeText(MOPreview.this, "Unit has been successfully resolved.", Toast.LENGTH_LONG).show();
+                        setResult(RESOLVE_SUCCESS,new Intent().putExtra("chassisNumber",wipChassisNumber.chassisNumber));
+                        dialog.dismiss();
                         finish();
                     }
                 },
@@ -294,6 +244,7 @@ public class MOPreview extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         apiErrorHandler(error);
+                        finish();
                     }
                 }
         );
@@ -304,7 +255,7 @@ public class MOPreview extends AppCompatActivity {
     private void materialCall() {
         Intent intent = new Intent(getApplicationContext(),MaterialCall.class);
         intent.putExtra("wipChassisNumber",gson.toJson(wipChassisNumber));
-        startActivity(intent);
+        startActivityForResult(intent, MATERIAL_CALL_REQUEST);
 //        finish();
     }
 
@@ -314,73 +265,9 @@ public class MOPreview extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void timeout() {
-        final String url = getResources().getString(R.string.api_time_out);
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("sectionId",section.id);
-            jsonObject.put("chassisNumber",wipChassisNumber.chassisNumber);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                JsonObjectRequest.Method.PUT,
-                url,
-                jsonObject,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Toast.makeText(MOPreview.this, "Unit has been successfully timed-out.", Toast.LENGTH_LONG).show();
-                        finish();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        apiErrorHandler(error);
-                    }
-                }
-        );
 
-        requestQueue.add(jsonObjectRequest);
-    }
-
-    // NOT FINAL FOR REVIEW
-    private void timeIn() {
-
-        btn_primaryAction.setEnabled(false);
-        final String url = getResources().getString(R.string.api_time_in);
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("sectionId",section.id);
-            jsonObject.put("chassisNumber",wipChassisNumber.chassisNumber);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST,
-                url,
-                jsonObject,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Toast.makeText(MOPreview.this, "Unit has been successfully timed-in.", Toast.LENGTH_LONG).show();
-                        finish();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        apiErrorHandler(error);
-                    }
-                }
-        );
-
-        requestQueue.add(request);
-    }
 
 
 }

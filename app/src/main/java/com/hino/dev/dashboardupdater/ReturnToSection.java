@@ -1,41 +1,28 @@
 package com.hino.dev.dashboardupdater;
 
+import android.app.Dialog;
 import android.content.Intent;
-import android.os.CountDownTimer;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ReturnToSection extends AppCompatActivity {
+public class ReturnToSection extends DashboardUpdater {
 
     private Button review_mo;
     private Button btn_back_job;
     private Button btn_spec_change;
     private Intent callerIntent;
     private String chassisNumber;
-    private Session session;
-    private User.Section section;
 
-    private RequestQueue requestQueue;
-    private Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +36,6 @@ public class ReturnToSection extends AppCompatActivity {
         btn_spec_change = findViewById(R.id.btn_spec_change);
         callerIntent = getIntent();
         chassisNumber = callerIntent.getStringExtra("chassisNumber");
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
-        gson = new Gson();
-        session = new Session(this);
-        section = session.getSection();
         
         review_mo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +68,8 @@ public class ReturnToSection extends AppCompatActivity {
     }
 
     private void specChange() {
+        final Dialog dialog = nonDismissibleDialog("Setting as spec-change.");
+        dialog.show();
         final String url = getResources().getString(R.string.api_spec_change);
 
         JSONObject jsonObject = new JSONObject();
@@ -102,7 +87,8 @@ public class ReturnToSection extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Toast.makeText(ReturnToSection.this, "Unit has been successfully flagged as Spec Change.", Toast.LENGTH_LONG).show();
+                        setResult(SPEC_CHANGE_SUCCESS,new Intent().putExtra("chassisNumber",chassisNumber));
+                        dialog.dismiss();
                         finish();
                     }
                 },
@@ -110,6 +96,7 @@ public class ReturnToSection extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         apiErrorHandler(error);
+                        finish();
                     }
                 }
         );
@@ -117,25 +104,9 @@ public class ReturnToSection extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest);
     }
 
-    private void apiErrorHandler(VolleyError error){
-        NetworkResponse networkResponse = error.networkResponse;
-
-        Intent intent = new Intent(getApplicationContext(),ShowServerResponse.class);
-        if(networkResponse == null){
-            intent.putExtra("message","NETWORK ERROR " +getResources().getString(R.string.api_error));
-        }else if(networkResponse.statusCode == 400){
-            String json = new String(networkResponse.data);
-            ApiResponse response = gson.fromJson(json,ApiResponse.class);
-            intent.putExtra("message",response.Message);
-        }else{
-            intent.putExtra("message","ERROR      "+networkResponse.statusCode+" " +getResources().getString(R.string.api_error));
-        }
-        startActivity(intent);
-        finish();
-        error.printStackTrace();
-    }
-
     private void backJob() {
+        final Dialog dialog = nonDismissibleDialog("Setting as back-job");
+        dialog.show();
         final String url = getResources().getString(R.string.api_back_job);
 
         JSONObject jsonObject = new JSONObject();
@@ -153,7 +124,8 @@ public class ReturnToSection extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Toast.makeText(ReturnToSection.this, "Unit has been successfully flagged as back job.", Toast.LENGTH_LONG).show();
+                        setResult(BACK_JOB_SUCCESS,new Intent().putExtra("chassisNumber",chassisNumber));
+                        dialog.dismiss();
                         finish();
                     }
                 },

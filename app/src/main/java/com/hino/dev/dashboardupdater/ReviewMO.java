@@ -2,7 +2,6 @@ package com.hino.dev.dashboardupdater;
 
 import android.content.Intent;
 import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,16 +14,11 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-public class ReviewMO extends AppCompatActivity {
+public class ReviewMO extends DashboardUpdater {
 
     private ProgressBar pb_spinner;
     private ConstraintLayout cl_layout1;
@@ -45,23 +39,14 @@ public class ReviewMO extends AppCompatActivity {
     private TextView lbl_quantity;
     private ImageView img_cancel;
     private Button btn_viewAttachments;
-    private RequestQueue requestQueue;
-    private Gson gson;
     private Intent callerIntent;
 
     private WipChassisNumber wipChassisNumber;
-    private String chassisNumber;
-    private Session session;
-    private User.Section section;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review_mo);
-        ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
-            actionBar.hide();
-        }
 
         pb_spinner = findViewById(R.id.progressBar);
         cl_layout1 = findViewById(R.id.constraintLayout1);
@@ -82,11 +67,7 @@ public class ReviewMO extends AppCompatActivity {
         lbl_quantity = findViewById(R.id.lbl_quantity);
         img_cancel = findViewById(R.id.img_close);
         btn_viewAttachments = findViewById(R.id.btn_view_attachments);
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
         callerIntent = getIntent();
-        gson = new Gson();
-        session = new Session(this);
-        section = session.getSection();
 
         img_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,7 +83,7 @@ public class ReviewMO extends AppCompatActivity {
             }
         });
 
-        fetchDetails();
+        fetchChassisNumberDetails();
     }
 
     private void viewAttachments() {
@@ -111,7 +92,7 @@ public class ReviewMO extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void fetchDetails(){
+    private void fetchChassisNumberDetails(){
         final String chassisNumber = callerIntent.getStringExtra("chassisNumber");
         final String url = getResources().getString(R.string.api_mo_chassis)
                 .replace("[sectionId]",section.id)
@@ -153,7 +134,7 @@ public class ReviewMO extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
+                        apiErrorHandler(error);
                     }
                 }
         );

@@ -52,4 +52,5 @@ public class Session {
     public void removeSection(){
         prefs.edit().remove("section").commit();
     }
+
 }

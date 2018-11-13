@@ -19,6 +19,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static com.hino.dev.dashboardupdater.MOList.SECTION_LIST_RESPONSE_IS_SELECT_A_NEW_SECTION;
+
 public class Sections extends AppCompatActivity {
 
     private Session session;
@@ -50,6 +52,7 @@ public class Sections extends AppCompatActivity {
                 session.setSection(section);
                 Intent intent = new Intent(getApplicationContext(),MOList.class);
                 startActivity(intent);
+                setResult(SECTION_LIST_RESPONSE_IS_SELECT_A_NEW_SECTION);
                 finish();
             }
         });

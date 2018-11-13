@@ -40,4 +40,11 @@
     <string name="internet_error_title">Connection Error</string>
     <string name="internet_error">Can\'t connect to server.\nPlease check wifi/internet connection.</string>
     <string name="api_error">\nPlease contact administrator.</string>
+    <string name="success_time_in">Unit has been Timed-In</string>
+    <string name="success_time_out">Unit has been Timed-Out</string>
+    <string name="success_material_call">Flagged as material call</string>
+    <string name="success_pending">Flagged as pending</string>
+    <string name="success_resolve">Unit has been Resolved</string>
+    <string name="success_spec_change">Flagged as Spec-change</string>
+    <string name="success_back_job">Flagged as back job</string>
 </resources>
